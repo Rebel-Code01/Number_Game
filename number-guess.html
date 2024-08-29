@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guess Number</title>
+    <style>
+        body {
+            background: linear-gradient(to right, #8cc0a4 0%, #93e772 100%);
+            text-align: center;
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+        .container {
+            background-color: #fff;
+            padding: 40px;
+            width: 400px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+            animation: slideIn 1s ease-in-out;
+            position: relative;
+        }
+        @keyframes slideIn {
+            from { transform: translateY(100vh); }
+            to { transform: translateY(0); }
+        }
+        h1 {
+            font-size: 28px;
+            color: #333;
+            margin-bottom: 20px;
+            animation: popIn 1s ease;
+        }
+        @keyframes popIn {
+            from { transform: scale(0.5); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+        label {
+            font-size: 24px;
+            font-weight: 900;
+            color: #555;
+        }
+        input {
+            margin-top: 20px;
+            font-size: 18px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            width: calc(100% - 22px);
+            outline: none;
+            transition: all 0.3s ease;
+        }
+        input:focus {
+            border-color: #5fbfff;
+            box-shadow: 0 0 8px rgba(95, 191, 255, 0.3);
+        }
+        input::placeholder {
+            color: #aaa;
+        }
+        input[id="output"] {
+            margin-top: 20px;
+            font-size: 18px;
+            border: none;
+            background-color: transparent;
+            color: #333;
+            width: 100%;
+            text-align: center;
+            animation: fadeIn 0.5s ease;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        button {
+            margin-top: 20px;
+            font-size: 18px;
+            border: none;
+            background-color: #5fbfff;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.3s ease;
+        }
+        button:hover {
+            background-color: #2b91d0;
+            transform: scale(1.05);
+        }
+        button:active {
+            transform: scale(0.95);
+        }
+        img {
+            width: 100px;
+            height: 100px;
+            margin-top: 20px;
+            transition: opacity 0.5s ease;
+        }
+        #stars {
+            position: absolute;
+            top: 0;
+            left: 50%;
+            width: 200%;
+            height: 200%;
+            background: url('https://i.imgur.com/zTgwwMp.png') repeat;
+            transform: translateX(-50%) rotate(45deg);
+            animation: moveStars 30s linear infinite;
+            z-index: -1;
+        }
+        @keyframes moveStars {
+            from { transform: translateX(-50%) rotate(45deg) translateY(0); }
+            to { transform: translateX(-50%) rotate(45deg) translateY(-200%); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Guess the Number</h1>
+        <img src="./You-won.gif" alt="Won" id="won" hidden>
+        <img src="./Sad-Emoji-unscreen.png" alt="Loss" id="loss" hidden>
+        <input type="text" id="enter" placeholder="Enter the number..." /><br>
+        <span id="hint" style="font-size: 18px; color: #757575;"></span><br>
+        <input type="text" id="output" readonly hidden /><br>
+        <button id="submit">Submit</button>
+        <button id="retry" hidden>Retry</button>
+    </div>
+    <div id="stars"></div>
+    <script>
+        let targetNumber = Math.floor(Math.random() * 10) + 1;
+        const enterInput = document.getElementById('enter');
+        const outputInput = document.getElementById('output');
+        const hintSpan = document.getElementById('hint');
+        const wonImage = document.getElementById('won');
+        const lossImage = document.getElementById('loss');
+        const submitButton = document.getElementById('submit');
+        const retryButton = document.getElementById('retry');
+
+        function resetGame() {
+            targetNumber = Math.floor(Math.random() * 10) + 1;
+            enterInput.value = '';
+            hintSpan.textContent = '';
+            enterInput.hidden = false;
+            outputInput.value = '';
+            outputInput.hidden = true;
+            outputInput.style.color = '#333';
+            wonImage.hidden = true;
+            lossImage.hidden = true;
+            submitButton.hidden = false;
+            retryButton.hidden = true;
+        }
+
+        enterInput.addEventListener('input', () => {
+            const userGuess = parseInt(enterInput.value);
+            if (isNaN(userGuess) || userGuess < 1 || userGuess > 10) {
+                hintSpan.textContent = "Please enter a number between 1 and 10.";
+            }
+        });
+
+        submitButton.addEventListener('click', () => {
+            const userGuess = parseInt(enterInput.value);
+            let message;
+            if (isNaN(userGuess) || userGuess < 1 || userGuess > 10) {
+                message = "Please enter a number between 1 and 10.";
+                outputInput.style.color = 'red';
+            } else if (userGuess === targetNumber) {
+                message = `Congratulations! You guessed the correct number ${targetNumber}!`;
+                outputInput.style.color = 'green';
+                wonImage.hidden = false;
+            } else {
+                message = `Wrong guess. The correct number was ${targetNumber}.`;
+                outputInput.style.color = 'red';
+                lossImage.hidden = false;
+            }
+            outputInput.value = message;
+            outputInput.hidden = false;
+            enterInput.hidden = true;
+            submitButton.hidden = true;
+            retryButton.hidden = false;
+        });
+
+        retryButton.addEventListener('click', resetGame);
+    </script>
+</body>
+</html>
